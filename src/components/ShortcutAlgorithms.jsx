@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Flash, Play, Pause } from 'lucide-react';
+import MiniMoveCube from './MiniMoveCube';
 
 const algorithms = [
   {
@@ -123,7 +124,7 @@ export default function ShortcutAlgorithms() {
           <div className="rounded-lg bg-fuchsia-100 p-2 text-fuchsia-700"><Flash className="h-5 w-5" /></div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">Rumus Shortcut Populer (2-Look OLL/PLL)</h2>
         </div>
-        <p className="text-gray-600 mb-6">Klik "Play" untuk menyorot urutan gerakan langkah demi langkah (dengan suara klik pendek). Latih perlahan hingga jari terasa nyaman.</p>
+        <p className="text-gray-600 mb-6">Klik "Play" untuk menyorot urutan gerakan langkah demi langkah (dengan suara klik pendek). Kini juga ada mini cube yang memvisualisasikan U, R, F, dll saat sequence berjalan.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {algorithms.map((alg, idx) => (
             <AlgCard key={alg.name} alg={alg} delay={idx * 0.05} />
@@ -135,7 +136,9 @@ export default function ShortcutAlgorithms() {
 }
 
 function AlgCard({ alg, delay }) {
-  const { index, play, stop, isPlaying } = useHighlighter(alg.moves, 480);
+  const { index, play, stop, isPlaying } = useHighlighter(alg.moves, 460);
+
+  const currentMove = index >= 0 ? alg.moves[index] : null;
 
   // Normalize display for wide-turns and rotations visually
   const prettyMoves = useMemo(() => alg.moves.map(m => m.replace('x', 'x').replace('M', 'M')), [alg.moves]);
@@ -149,11 +152,11 @@ function AlgCard({ alg, delay }) {
       className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900">{alg.name}</h3>
           <p className="text-sm text-gray-500 mt-1">{alg.note}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           {!isPlaying ? (
             <button onClick={play} className="inline-flex items-center gap-1.5 rounded-md bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-sm px-3 py-1.5 font-medium">
               <Play className="h-4 w-4" /> Play
@@ -165,6 +168,7 @@ function AlgCard({ alg, delay }) {
           )}
         </div>
       </div>
+
       <div className="mt-4 flex flex-wrap gap-2">
         {prettyMoves.map((m, i) => (
           <span
@@ -175,11 +179,17 @@ function AlgCard({ alg, delay }) {
           </span>
         ))}
       </div>
+
       <div className="mt-4 h-1 w-full bg-gray-100 rounded overflow-hidden">
         <div
           className="h-full bg-fuchsia-500 transition-all duration-300"
           style={{ width: index >= 0 ? `${((index + 1) / alg.moves.length) * 100}%` : '0%' }}
         />
+      </div>
+
+      <div className="mt-5 rounded-lg border border-gray-200 p-3 bg-gray-50">
+        <div className="text-xs text-gray-500 mb-2">Visualisasi: {currentMove || '—'}</div>
+        <MiniMoveCube move={currentMove} />
       </div>
     </motion.div>
   );
